@@ -18,33 +18,40 @@ var database = firebase.database();
 var trainName = "";
 var destination = "";
 var frequency = 0;
-// var nextArrival= 0;
-// var minutesAway = 0;
-var firstTrainTime = 0;
+var firstTrainTime = "";
 
-// --------------------------------------------------------------
-
+// Capture button click for inputs
 $("#submit-train-schedule").on("click", function () {
     // Don't refresh the page!
     event.preventDefault();
 
+    //Capturing the values for each input
     trainName = $("#train-name").val().trim();
     destination = $("#destination").val().trim();
     firstTrainTime = $("first-train-time").val();
+    console.log("Firsttraintime: " + firstTrainTime);
     frequency = $("#frequency").val().trim();
 
-    //Calculations to solve for Minutes Away and Next Arrival
-    //Grabbing the current time 
-    var currentTime = moment();
-    console.log("This is the current time: " + currentTime);
 
-    //Solving to get the difference between the Current Time and First Train Time
-    var timeDifference = currentTime - firstTrainTime;
-    console.log("Time difference (currentTime-firstTrainTime): " + timeDifference);
+    // Calculations to solve for Minutes Away and Next Arrival
+    // Grabbing the current time 
+    var currentTime = moment().format("HH:mm");
+    console.log("currentTime: " + currentTime);
+
+    //Converting entered time into a format
+    var enteredTime = moment(childSnapshot.val().firstTrainTime, 'HH:mm');
+    console.log("enteredTime: " + enteredTime);
+
+    var formattedTime = moment(firstTrainTime).format("HH:mm");
+    console.log("formattedTime: " + formattedTime);
+
+    //Solving to get the difference between the Current Time and Formatted Time
+    var timeDifference = currentTime - formattedTime;
+    console.log("timeDifference: " + timeDifference);
 
     //Solving to get the remainder
     var remainingMinutes = timeDifference % frequency;
-    console.log("This is the remaining minutes (timeDifference modulus frequency) " + remainingMinutes);
+    console.log("remainingMinutes: " + remainingMinutes);
 
     //Solving for Minutes Away
     var minutesAway = frequency - remainingMinutes;
@@ -54,18 +61,18 @@ $("#submit-train-schedule").on("click", function () {
     var nextArrivalSolved = minutesAway + currentTime;
     console.log("This is the Next Arrival Time Solved (minutesAway + currentTime): " + nextArrivalSolved);
 
-    var nextArrival = moment(nextArrivalSolved);
+    var nextArrival = moment(nextArrivalSolved).format("HH:mm");
     console.log("Next Arrival: " + nextArrival);
-    
+
     // Handling the "initial load"
     database.ref().push({
         trainName: trainName,
         destination: destination,
+        firstTrainTime: firstTrainTime,
         frequency: frequency,
         nextArrival: nextArrival,
         minutesAway: minutesAway,
     });
-
 });
 
 database.ref().on("child_added", function (childSnapshot) {
@@ -73,6 +80,7 @@ database.ref().on("child_added", function (childSnapshot) {
     //console logging all this data
     console.log("Train Name: " + childSnapshot.val().trainName);
     console.log("Destination: " + childSnapshot.val().destination);
+    console.log("First Train Time: " + childSnapshot.val().firstTrainTime);
     console.log("Frequency: " + childSnapshot.val().frequency);
     console.log("Next Arrival: " + childSnapshot.val().nextArrival);
     console.log("Minutes Away: " + childSnapshot.val().minutesAway);
