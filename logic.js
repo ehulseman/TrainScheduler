@@ -31,44 +31,50 @@ $("#submit-train-schedule").on("click", function () {
     firstTrainTime = $("#first-train-time").val();
     frequency = $("#frequency").val().trim();
 
-
-    parseInt(frequency);
-
     // Calculations to solve for Minutes Away and Next Arrival
     // Grabbing the current time 
-    var currentTime = moment().format("HH:mm");
-    console.log("currentTime: " + currentTime);
+    var now = moment(); 
+    var currentTime = moment(now).format("HH:mm");
+
+    console.log("firstTrainTime: " + firstTrainTime);
 
     //Converting entered time into a format
-    var formattedTime = moment(firstTrainTime).format("HH:mm");
-    console.log("formattedTime: " + formattedTime);
+    var formattedTime = moment(firstTrainTime, "HH:mm");  
+    console.log("firstTrainTime: " + formattedTime);
+
+    var displayFirstTrain = moment(formattedTime).format("HH:mm")
+    console.log("formattedTime: " + displayFirstTrain);
 
     //Solving to get the difference between the Current Time and Formatted Time
-    var timeDifference = parseInt(currentTime) - parseInt(formattedTime);
-    console.log("timeDifference: " + timeDifference);
+    var timeDifference = moment().diff(moment(formattedTime), "minutes");
+    console.log("timeDifference: " + timeDifference); 
+
+    //**  moment() automatically returns the current time, .diff(moment(enteredTime), "minutes") handles the math 
+    //**  formattedTime - as opposed to displayFirstTrain - reads as 1509703200000 - this allows momentJS to perform said math operations
 
     //Solving to get the remainder
-    var remainingMinutes = parseInt(timeDifference) % frequency;
+    var remainingMinutes = timeDifference % frequency; 
+
+    console.log("frequency: " + frequency);
     console.log("remainingMinutes: " + remainingMinutes);
 
     //Solving for Minutes Away
-    var minutesAway = frequency - parseInt(remainingMinutes);
+    var minutesAway = frequency - remainingMinutes
     console.log("This is minutes away (frequency - remainingMinutes): " + minutesAway);
 
     //Solving for Next Arrival
-    var nextArrivalSolved = minutesAway + currentTime;
-    console.log("This is the Next Arrival Time Solved (minutesAway + currentTime): " + nextArrivalSolved);
+    var nextArrival = moment().add(minutesAway, "minutes");
+    console.log("This is the Next Arrival: " + moment(nextArrival).format("HH:mm")); 
 
-    var nextArrival = moment(nextArrivalSolved).format("HH:mm");
-    console.log("Next Arrival: " + nextArrival);
+    var displayNextArrival = moment(nextArrival).format("HH:mm");
 
     // Handling the "initial load"
     database.ref().push({
         trainName: trainName,
         destination: destination,
-        firstTrainTime: formattedTime,
+        firstTrainTime: displayFirstTrain,
         frequency: frequency,
-        nextArrival: nextArrival,
+        nextArrival: displayNextArrival,
         minutesAway: minutesAway,
     });
 });
