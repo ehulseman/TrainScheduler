@@ -28,10 +28,11 @@ $("#submit-train-schedule").on("click", function () {
     //Capturing the values for each input
     trainName = $("#train-name").val().trim();
     destination = $("#destination").val().trim();
-    firstTrainTime = $("first-train-time").val();
-    console.log("Firsttraintime: " + firstTrainTime);
+    firstTrainTime = $("#first-train-time").val();
     frequency = $("#frequency").val().trim();
 
+
+    parseInt(frequency);
 
     // Calculations to solve for Minutes Away and Next Arrival
     // Grabbing the current time 
@@ -39,22 +40,19 @@ $("#submit-train-schedule").on("click", function () {
     console.log("currentTime: " + currentTime);
 
     //Converting entered time into a format
-    var enteredTime = moment(childSnapshot.val().firstTrainTime, 'HH:mm');
-    console.log("enteredTime: " + enteredTime);
-
     var formattedTime = moment(firstTrainTime).format("HH:mm");
     console.log("formattedTime: " + formattedTime);
 
     //Solving to get the difference between the Current Time and Formatted Time
-    var timeDifference = currentTime - formattedTime;
+    var timeDifference = parseInt(currentTime) - parseInt(formattedTime);
     console.log("timeDifference: " + timeDifference);
 
     //Solving to get the remainder
-    var remainingMinutes = timeDifference % frequency;
+    var remainingMinutes = parseInt(timeDifference) % frequency;
     console.log("remainingMinutes: " + remainingMinutes);
 
     //Solving for Minutes Away
-    var minutesAway = frequency - remainingMinutes;
+    var minutesAway = frequency - parseInt(remainingMinutes);
     console.log("This is minutes away (frequency - remainingMinutes): " + minutesAway);
 
     //Solving for Next Arrival
@@ -68,7 +66,7 @@ $("#submit-train-schedule").on("click", function () {
     database.ref().push({
         trainName: trainName,
         destination: destination,
-        firstTrainTime: firstTrainTime,
+        firstTrainTime: formattedTime,
         frequency: frequency,
         nextArrival: nextArrival,
         minutesAway: minutesAway,
